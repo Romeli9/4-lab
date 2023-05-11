@@ -51,7 +51,7 @@ libclang==15.0.6.1
 Mako==1.2.4
 Markdown==3.4.1
 MarkupSafe==2.1.2
-matplotlib==3.7.0
+matplotlib==3.5.3
 mistune==2.0.5
 numpy==1.23.5
 oauthlib==3.2.2
