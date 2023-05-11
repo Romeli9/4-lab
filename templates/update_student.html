@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Student</title>
+</head>
+<body>
+    <h1>Update Student</h1>
+    <a href="{{ url_for('index') }}">Go to homepage</a>
+    <form method="POST" action="{{ url_for('update_student') }}">
+        <label for="old_full_name">Old Full Name:</label>
+        <input type="text" id="old_full_name" name="old_full_name">
+        <br>
+        <label for="new_full_name">New Full Name:</label>
+        <input type="text" id="new_full_name" name="new_full_name">
+        <br>
+        <label for="age">Age:</label>
+        <input type="text" id="age" name="age">
+        <br>
+        <label for="grade">Grade:</label>
+        <input type="text" id="grade" name="grade">
+        <br>
+        <input type="submit" value="Update">
+    </form>
+</body>
+</html>

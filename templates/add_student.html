@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Add a new student</title>
+</head>
+<body>
+	<h1>Add a new student</h1>
+	<a href="{{ url_for('index') }}">Go to homepage</a>
+	<form method="POST">
+		<label for="name">Name:</label>
+		<input type="text" id="name" name="name" required><br>
+
+		<label for="subject">Subject:</label>
+		<input type="text" id="subject" name="subject" required><br>
+
+		<label for="semester">Semester:</label>
+		<input type="number" id="semester" name="semester" required><br>
+
+		<label for="grade">Grade:</label>
+		<input type="number" id="grade" name="grade" required><br>
+
+		<label for="year">Year:</label>
+		<input type="number" id="year" name="year" required><br>
+
+		<label for="age">Age:</label>
+		<input type="number" id="age" name="age" required><br>
+
+		<input type="submit" value="Add">
+	</form>
+</body>
+</html>

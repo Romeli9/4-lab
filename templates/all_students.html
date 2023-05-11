@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Students</title>
+</head>
+<body>
+    <h1>All Students</h1>
+    <a href="{{ url_for('index') }}">Go to homepage</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Subject</th>
+                <th>Semester Number</th>
+                <th>Grade</th>
+                <th>Start Year</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.subject }}</td>
+                <td>{{ student.semester_number }}</td>
+                <td>{{ student.grade }}</td>
+                <td>{{ student.start_year }}</td>
+                <td>{{ student.age }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

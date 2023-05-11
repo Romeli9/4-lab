@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sort Students</title>
+</head>
+<body>
+    <h1>Sort Students</h1>
+    <a href="{{ url_for('index') }}">Go to homepage</a>
+    <form method="POST" action="{{ url_for('sort_students') }}">
+        <label for="sort_attribute">Sort by:</label>
+        <select name="attribute" id="sort_attribute">
+            <option value="name">Name</option>
+            <option value="age">Age</option>
+            <option value="gpa">GPA</option>
+            <option value="subject">Subject</option>
+            <option value="semester_number">Semester Number</option>
+            <option value="start_year">Start Year</option>
+        </select>
+        <input type="submit" value="Sort">
+    </form>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>GPA</th>
+                <th>Subject</th>
+                <th>Semester Number</th>
+                <th>Start Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.age }}</td>
+                <td>{{ student.grade }}</td>
+                <td>{{ student.subject }}</td>
+                <td>{{ student.semester_number }}</td>
+                <td>{{ student.start_year }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
