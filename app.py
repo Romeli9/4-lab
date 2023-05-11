@@ -9,9 +9,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-api = Api(app, version='1.0', title='Students API',
-   description='A simple API to manage students data')
-
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
@@ -41,67 +38,8 @@ class Student(db.Model):
     def __repr__(self):
         return f'<Student {self.id}>'
 
-student_model = api.model('Student', {
-    'full_name': fields.String(required=True),
-    'subject': fields.String(required=True),
-    'semester_number': fields.Integer(required=True),
-    'grade': fields.Integer(required=True),
-    'start_year': fields.Integer(required=True),
-    'age': fields.Integer(required=True)
-})
 
 
-class StudentResource(Resource):
-    def get(self, id=None):
-        if id:
-            student = Student.query.filter_by(id=id).first()
-            if not student:
-                abort(404, message=f"Student with id={id} not found")
-            return jsonify(student.serialize())
-        else:
-            students = Student.query.all()
-            return jsonify([s.serialize() for s in students])
-
-    def post(self):
-        data = request.json
-        try:
-            new_student = Student(**data)
-            db.session.add(new_student)
-            db.session.commit()
-            return new_student.to_dict(), 201
-        except Exception as e:
-            db.session.rollback()
-            return {'error': str(e)}, 500
-
-    @api.expect(student_model)
-    @api.doc(responses={200: 'Student Updated', 400: 'Invalid Argument', 500: 'Mapping Key Error'},
-             params={'id': 'Specify the ID associated with the student', 'student': 'Student information'})
-    def put(self, id):
-        data = request.json
-        student = Student.query.get(id)
-        if student:
-            student.full_name = data.get('full_name', student.full_name)
-            student.subject = data.get('subject', student.subject)
-            student.semester_number = data.get('semester_number', student.semester_number)
-            student.grade = data.get('grade', student.grade)
-            student.start_year = data.get('start_year', student.start_year)
-            student.age = data.get('age', student.age)
-            db.session.commit()
-            return student.to_dict(), 200
-        else:
-            return {'error': 'Student not found'}, 404
-
-    @api.doc(responses={204: 'Student Deleted', 400: 'Invalid Argument', 500: 'Mapping Key Error'},
-             params={'id': 'Specify the ID associated with the student'})
-    
-
-    def delete(self, id):
-        student = Student.query.filter_by(id=id).first()
-        if not student:
-            abort(404, message=f"Student with id={id} not found")
-        db.session.delete(student)
-        db.session.commit()
-        return '', 204
 
 
 @app.route('/students',methods=['GET'])
@@ -179,7 +117,74 @@ def delete_student():
     else:
          return render_template('delete_student.html')
 
-api.add_resource(StudentResource, '/students', '/students/<int:id>')
+
+# api = Api(app, version='1.0', title='Students API',
+#    description='A simple API to manage students data')
+
+# student_model = api.model('Student', {
+#     'full_name': fields.String(required=True),
+#     'subject': fields.String(required=True),
+#     'semester_number': fields.Integer(required=True),
+#     'grade': fields.Integer(required=True),
+#     'start_year': fields.Integer(required=True),
+#     'age': fields.Integer(required=True)
+# })
+
+
+# class StudentResource(Resource):
+#     def get(self, id=None):
+#         if id:
+#             student = Student.query.filter_by(id=id).first()
+#             if not student:
+#                 abort(404, message=f"Student with id={id} not found")
+#             return jsonify(student.serialize())
+#         else:
+#             students = Student.query.all()
+#             return jsonify([s.serialize() for s in students])
+
+#     def post(self):
+#         data = request.json
+#         try:
+#             new_student = Student(**data)
+#             db.session.add(new_student)
+#             db.session.commit()
+#             return new_student.to_dict(), 201
+#         except Exception as e:
+#             db.session.rollback()
+#             return {'error': str(e)}, 500
+
+#     @api.expect(student_model)
+#     @api.doc(responses={200: 'Student Updated', 400: 'Invalid Argument', 500: 'Mapping Key Error'},
+#              params={'id': 'Specify the ID associated with the student', 'student': 'Student information'})
+#     def put(self, id):
+#         data = request.json
+#         student = Student.query.get(id)
+#         if student:
+#             student.full_name = data.get('full_name', student.full_name)
+#             student.subject = data.get('subject', student.subject)
+#             student.semester_number = data.get('semester_number', student.semester_number)
+#             student.grade = data.get('grade', student.grade)
+#             student.start_year = data.get('start_year', student.start_year)
+#             student.age = data.get('age', student.age)
+#             db.session.commit()
+#             return student.to_dict(), 200
+#         else:
+#             return {'error': 'Student not found'}, 404
+
+#     @api.doc(responses={204: 'Student Deleted', 400: 'Invalid Argument', 500: 'Mapping Key Error'},
+#              params={'id': 'Specify the ID associated with the student'})
+    
+
+#     def delete(self, id):
+#         student = Student.query.filter_by(id=id).first()
+#         if not student:
+#             abort(404, message=f"Student with id={id} not found")
+#         db.session.delete(student)
+#         db.session.commit()
+#         return '', 204
+
+
+# api.add_resource(StudentResource, '/students', '/students/<int:id>')
 
 @app.route('/api')
 def api():  
