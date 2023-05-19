@@ -1,31 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Add a new student</title>
+    <title>Add a new student</title>
 </head>
 <body>
-	<h1>Add a new student</h1>
-	<a href="{{ url_for('index') }}">Go to homepage</a>
-	<form method="POST">
-		<label for="name">Name:</label>
-		<input type="text" id="name" name="name" required><br>
+    <h1>Add a new student</h1>
+    <a href="{{ url_for('index') }}">Go to homepage</a>
+    <form method="POST" action="/add_student">
+        <input type="text" name="full_name" placeholder="Full Name" required><br>
+        <input type="text" name="age" placeholder="Age" required><br>
+        <input type="text" name="grade" placeholder="Grade" required><br>
+        <input type="text" name="subject" placeholder="Subject" required><br>
+        <input type="number" name="semester_number" placeholder="Semester Number" required><br>
+        <input type="number" name="start_year" placeholder="Start Year" required><br>
 
-		<label for="subject">Subject:</label>
-		<input type="text" id="subject" name="subject" required><br>
-
-		<label for="semester">Semester:</label>
-		<input type="number" id="semester" name="semester" required><br>
-
-		<label for="grade">Grade:</label>
-		<input type="number" id="grade" name="grade" required><br>
-
-		<label for="year">Year:</label>
-		<input type="number" id="year" name="year" required><br>
-
-		<label for="age">Age:</label>
-		<input type="number" id="age" name="age" required><br>
-
-		<input type="submit" value="Add">
-	</form>
+        <input type="submit" value="Add">
+    </form>
 </body>
 </html>
