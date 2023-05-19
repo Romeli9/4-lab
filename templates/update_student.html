@@ -6,20 +6,16 @@
 <body>
     <h1>Update Student</h1>
     <a href="{{ url_for('index') }}">Go to homepage</a>
-    <form method="POST" action="{{ url_for('update_student') }}">
-        <label for="old_full_name">Old Full Name:</label>
-        <input type="text" id="old_full_name" name="old_full_name">
-        <br>
-        <label for="new_full_name">New Full Name:</label>
-        <input type="text" id="new_full_name" name="new_full_name">
-        <br>
-        <label for="age">Age:</label>
-        <input type="text" id="age" name="age">
-        <br>
-        <label for="grade">Grade:</label>
-        <input type="text" id="grade" name="grade">
-        <br>
-        <input type="submit" value="Update">
+    <form method="POST" action="/update_student">
+    <input type="text" name="old_full_name" placeholder="Old Full Name" required><br>
+    <input type="text" name="new_full_name" placeholder="New Full Name" required><br>
+    <input type="text" name="age" placeholder="Age" required><br>
+    <input type="text" name="grade" placeholder="Grade" required><br>
+    <input type="text" name="subject" placeholder="Subject" required><br>
+    <input type="text" name="semester_number" placeholder="Semester Number" required><br>
+    <input type="text" name="start_year" placeholder="Start Year" required><br>
+    <button type="submit">Update Student</button>
     </form>
+
 </body>
 </html>
