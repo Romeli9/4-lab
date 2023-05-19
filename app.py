@@ -1,13 +1,96 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, abort
 from flask_restx import Api, Resource, fields
-from database import db
-import os
+from database import db, Students, initialize_database
+
+
 
 app = Flask(__name__)
 app.secret_key = 'mysecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+# Инициализация объекта Api
+api = Api(app, version='1.0', title='Student API', description='API for managing student data')
+
+# Определение модели студента
+student_model = api.model('Student', {
+    'full_name': fields.String(required=True, description='Full name of the student'),
+    'subject': fields.String(required=True, description='Subject of study'),
+    'semester_number': fields.Integer(required=True, description='Semester number'),
+    'grade': fields.Integer(required=True, description='Grade'),
+    'start_year': fields.Integer(required=True, description='Year of enrollment'),
+    'age': fields.Integer(required=True, description='Age of the student')
+})
+
+# Пример данных о студентах
+students = []
+
+# Конечная точка для получения всех студентов
+@api.route('/students')
+class StudentsResource(Resource):
+    @api.doc('get_all_students')
+    @api.marshal_list_with(student_model)
+    def get(self):
+        return students
+
+    @api.doc('create_student')
+    @api.expect(student_model)
+    @api.marshal_with(student_model, code=201)
+    def post(self):
+        payload = request.json
+        name = payload['full_name']
+        subject = payload['subject']
+        semester = payload['semester_number']
+        grade = payload['grade']
+        year = payload['start_year']
+        age = payload['age']
+        new_student = {
+            'full_name': name,
+            'subject': subject,
+            'semester_number': semester,
+            'grade': grade,
+            'start_year': year,
+            'age': age
+        }
+        students.append(new_student)
+        return payload, 201
+
+@api.route('/students/<string:full_name>')
+@api.doc(params={'full_name': 'Full name of the student'})
+class StudentResource(Resource):
+    @api.doc('get_student')
+    @api.marshal_with(student_model)
+    def get(self, full_name):
+        for student in students:
+            if student['full_name'] == full_name:
+                return student
+        api.abort(404, f'Student {full_name} not found')
+
+    @api.doc('update_student')
+    @api.expect(student_model)
+    @api.marshal_with(student_model)
+    def put(self, full_name):
+        for student in students:
+            if student['full_name'] == full_name:
+                payload = request.json
+                student['full_name'] = payload['full_name']  # Обновление имени студента
+                student['subject'] = payload['subject']
+                student['semester_number'] = payload['semester_number']
+                student['grade'] = payload['grade']
+                student['start_year'] = payload['start_year']
+                student['age'] = payload['age']
+                return student
+        api.abort(404, f'Student {full_name} not found')
+
+    @api.doc('delete_student')
+    @api.response(204, 'Student deleted')
+    def delete(self, full_name):
+        for student in students:
+            if student['full_name'] == full_name:
+                students.remove(student)
+                return '', 204
+        abort(404, f'Student {full_name} not found')
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,32 +119,32 @@ class Student(db.Model):
             return Student.query.all()
 
     def __repr__(self):
-        return f'<Student {self.id}>'
+        return f'<Student {self.full_name}>'
 
 
-
-
-
-@app.route('/students',methods=['GET'])
+@app.route('/students', methods=['GET'])
 def get_all_students():
-    students = Student.query.all()
-    return render_template('all_students.html', students=students)
+    student = Student.query.all()
+    return render_template('all_students.html', students=student)
+
 
 @app.route('/add_student', methods=['GET', 'POST'])
 def add_student():
     if request.method == 'POST':
-        name = request.form['name']
+        name = request.form['full_name']
         subject = request.form['subject']
-        semester = request.form['semester']
+        semester = request.form['semester_number']
         grade = request.form['grade']
-        year = request.form['year']
+        year = request.form['start_year']
         age = request.form['age']
-        new_student = Student(full_name=name, subject=subject, semester_number=semester, grade=grade, start_year=year, age=age)
+        new_student = Student(full_name=name, subject=subject, semester_number=semester, grade=grade, start_year=year,
+                              age=age)
         db.session.add(new_student)
         db.session.commit()
         flash('Student added successfully')
         return redirect(url_for('get_all_students'))
     return render_template('add_student.html')
+
 
 @app.route('/students/stats')
 def get_student_stats():
@@ -71,7 +154,9 @@ def get_student_stats():
     min_grade = min(grades)
     oldest_student = Student.query.order_by(Student.age.desc()).first()
     youngest_student = Student.query.order_by(Student.age.asc()).first()
-    return render_template('stats.html', average_grade=average_grade, max_grade=max_grade, min_grade=min_grade, oldest_student=oldest_student, youngest_student=youngest_student)
+    return render_template('stats.html', average_grade=average_grade, max_grade=max_grade, min_grade=min_grade,
+                           oldest_student=oldest_student, youngest_student=youngest_student)
+
 
 @app.route('/sort', methods=['GET', 'POST'])
 def sort_students():
@@ -82,6 +167,7 @@ def sort_students():
     else:
         students = Student.query.all()
         return render_template('sort_students.html', students=students)
+
 
 @app.route('/update_student', methods=['GET', 'POST'])
 def update_student():
@@ -95,11 +181,15 @@ def update_student():
         student.full_name = new_full_name
         student.age = request.form['age']
         student.grade = request.form['grade']
+        student.subject = request.form['subject']
+        student.semester_number = request.form['semester_number']
+        student.start_year = request.form['start_year']
         db.session.commit()
         flash(f'Student {old_full_name} updated successfully')
         return redirect(url_for('get_all_students'))
     else:
         return render_template('update_student.html')
+
 
 
 @app.route('/delete_student', methods=['GET', 'POST'])
@@ -115,84 +205,21 @@ def delete_student():
         flash(f'Student {full_name} deleted successfully')
         return redirect(url_for('get_all_students'))
     else:
-         return render_template('delete_student.html')
+        return render_template('delete_student.html')
 
 
-# api = Api(app, version='1.0', title='Students API',
-#    description='A simple API to manage students data')
 
-# student_model = api.model('Student', {
-#     'full_name': fields.String(required=True),
-#     'subject': fields.String(required=True),
-#     'semester_number': fields.Integer(required=True),
-#     'grade': fields.Integer(required=True),
-#     'start_year': fields.Integer(required=True),
-#     'age': fields.Integer(required=True)
-# })
-
-
-# class StudentResource(Resource):
-#     def get(self, id=None):
-#         if id:
-#             student = Student.query.filter_by(id=id).first()
-#             if not student:
-#                 abort(404, message=f"Student with id={id} not found")
-#             return jsonify(student.serialize())
-#         else:
-#             students = Student.query.all()
-#             return jsonify([s.serialize() for s in students])
-
-#     def post(self):
-#         data = request.json
-#         try:
-#             new_student = Student(**data)
-#             db.session.add(new_student)
-#             db.session.commit()
-#             return new_student.to_dict(), 201
-#         except Exception as e:
-#             db.session.rollback()
-#             return {'error': str(e)}, 500
-
-#     @api.expect(student_model)
-#     @api.doc(responses={200: 'Student Updated', 400: 'Invalid Argument', 500: 'Mapping Key Error'},
-#              params={'id': 'Specify the ID associated with the student', 'student': 'Student information'})
-#     def put(self, id):
-#         data = request.json
-#         student = Student.query.get(id)
-#         if student:
-#             student.full_name = data.get('full_name', student.full_name)
-#             student.subject = data.get('subject', student.subject)
-#             student.semester_number = data.get('semester_number', student.semester_number)
-#             student.grade = data.get('grade', student.grade)
-#             student.start_year = data.get('start_year', student.start_year)
-#             student.age = data.get('age', student.age)
-#             db.session.commit()
-#             return student.to_dict(), 200
-#         else:
-#             return {'error': 'Student not found'}, 404
-
-#     @api.doc(responses={204: 'Student Deleted', 400: 'Invalid Argument', 500: 'Mapping Key Error'},
-#              params={'id': 'Specify the ID associated with the student'})
-    
-
-#     def delete(self, id):
-#         student = Student.query.filter_by(id=id).first()
-#         if not student:
-#             abort(404, message=f"Student with id={id} not found")
-#         db.session.delete(student)
-#         db.session.commit()
-#         return '', 204
-
-
-# api.add_resource(StudentResource, '/students', '/students/<int:id>')
 
 @app.route('/api')
-def api():  
+def api():
     return redirect(url_for('swagger_ui', path='swagger.json'))
+
 
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
+
 if __name__ == '__main__':
+    initialize_database(app)
     app.run(debug=True)
