@@ -11,51 +11,51 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # Инициализация объекта Api
-api = Api(app, version='1.0', title='Student API', description='API for managing student data')
+#api = Api(app, version='1.0', title='Student API', description='API for managing student data')
 
-# Определение модели студента
-student_model = api.model('Student', {
-    'full_name': fields.String(required=True, description='Full name of the student'),
-    'subject': fields.String(required=True, description='Subject of study'),
-    'semester_number': fields.Integer(required=True, description='Semester number'),
-    'grade': fields.Integer(required=True, description='Grade'),
-    'start_year': fields.Integer(required=True, description='Year of enrollment'),
-    'age': fields.Integer(required=True, description='Age of the student')
-})
+# # Определение модели студента
+# student_model = api.model('Student', {
+#     'full_name': fields.String(required=True, description='Full name of the student'),
+#     'subject': fields.String(required=True, description='Subject of study'),
+#     'semester_number': fields.Integer(required=True, description='Semester number'),
+#     'grade': fields.Integer(required=True, description='Grade'),
+#     'start_year': fields.Integer(required=True, description='Year of enrollment'),
+#     'age': fields.Integer(required=True, description='Age of the student')
+# })
 
-# Пример данных о студентах
-students = []
+# # Пример данных о студентах
+# students = []
 
-# Конечная точка для получения всех студентов
-@api.route('/students')
-class StudentsResource(Resource):
-    @api.doc('get_all_students')
-    @api.marshal_list_with(student_model)
-    def get(self):
-        return students
+# # Конечная точка для получения всех студентов
+# @api.route('/students')
+# class StudentsResource(Resource):
+#     @api.doc('get_all_students')
+#     @api.marshal_list_with(student_model)
+#     def get(self):
+#         return students
 
-    @api.doc('create_student')
-    @api.expect(student_model)
-    @api.marshal_with(student_model, code=201)
-    def post(self):
-        payload = request.json
-        name = payload['full_name']
-        subject = payload['subject']
-        semester = payload['semester_number']
-        grade = payload['grade']
-        year = payload['start_year']
-        age = payload['age']
-        new_student = {
-            'full_name': name,
-            'subject': subject,
-            'semester_number': semester,
-            'grade': grade,
-            'start_year': year,
-            'age': age
-        }
-        students.append(new_student)
-        return payload, 201
-
+#     @api.doc('create_student')
+#     @api.expect(student_model)
+#     @api.marshal_with(student_model, code=201)
+#     def post(self):
+#         payload = request.json
+#         name = payload['full_name']
+#         subject = payload['subject']
+#         semester = payload['semester_number']
+#         grade = payload['grade']
+#         year = payload['start_year']
+#         age = payload['age']
+#         new_student = {
+#             'full_name': name,
+#             'subject': subject,
+#             'semester_number': semester,
+#             'grade': grade,
+#             'start_year': year,
+#             'age': age
+#         }
+#         students.append(new_student)
+#         return payload, 201
+'''
 @api.route('/students/<string:full_name>')
 @api.doc(params={'full_name': 'Full name of the student'})
 class StudentResource(Resource):
@@ -91,7 +91,7 @@ class StudentResource(Resource):
                 students.remove(student)
                 return '', 204
         abort(404, f'Student {full_name} not found')
-
+'''
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
@@ -210,9 +210,9 @@ def delete_student():
 
 
 
-@app.route('/api')
-def api():
-    return redirect(url_for('swagger_ui', path='swagger.json'))
+# @app.route('/api')
+# def api():
+#     return redirect(url_for('swagger_ui', path='swagger.json'))
 
 
 @app.route('/', methods=['GET'])
